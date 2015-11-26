@@ -1,2 +1,2 @@
 # Python_foo
-playing with Python
+Repository to house code made while learning Python
