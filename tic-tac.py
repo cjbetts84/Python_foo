@@ -18,7 +18,7 @@ def drawBoard():
 
 #Checks to see if a space is clear
 def isOpenSpace(space):
-  return board.get(space) == ' '
+  return (board.get(space) == ' ')
 
 #Computer will attempt a winning move
 def tryToWin():
@@ -43,13 +43,18 @@ def placeRandomly():
 
 #Computer's turn (try to win, then try to block, then just place random)
 def computerTurn():
-  if tryToWin():
+  if isOpenSpace('mid-M'):
+    board['mid-M'] = 'X'
+    print("You didn't take the center? Okay...")
     drawBoard()
+    return False
+  if tryToWin():
     print("I win, you lose. Game over.")
+    drawBoard()
     return True
   elif tryToBlock():
-    drawBoard()
     print("I see what you did there...")
+    drawBoard()    
     return False
   else:
     placeRandomly()
@@ -58,8 +63,25 @@ def computerTurn():
     return False
 
 def userTurn():
-  #TO-DO
-  print("To do: implement logic for the user's turn")
+
+  while True:
+    uRow = input("Which row (top, mid, low)?")
+    while ((uRow != 'top') and (uRow != 'mid') and (uRow != 'low')):
+      uRow = input("Which row (top, mid, low)?")
+      
+    uCol = input("Which column (L, M, R)?")
+    uCol = uCol.upper() #force uppercase
+    while ((uCol != 'L') and (uCol != 'M') and (uCol != 'R')):
+      uCol = input("Which column (L, M, R)?")
+      uCol = uCol.upper() #force uppercase
+
+    #if uCol is lowercase, isOpenSpace() doesn't work properly
+    uSpace = uRow + "-" + uCol
+
+    if isOpenSpace(uSpace):
+      break
+
+  board[uSpace] = 'O'
   drawBoard()
 
 print("Starting the game.\n I'm playing 'X', you go first.")
