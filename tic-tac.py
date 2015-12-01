@@ -20,6 +20,11 @@ cols = [['top-L', 'mid-L', 'low-L'],
 diags = [['top-L', 'mid-M', 'low-R'],
          ['top-R', 'mid-M', 'low-L']]
 
+#Resets the board
+def resetBoard():
+  for k in list(board.keys()):
+    board[k] = ' '
+
 #Displays the tic-tac board
 def drawBoard():
   print(board['top-L'] + " | " + board['top-M'] + " | " + board['top-R'])
@@ -169,6 +174,20 @@ def tryToBlock():
       
   return False  #Unable to block
 
+#Computer will pick a corner cell
+def takeCorner():
+  corners = ['top-L', 'top-R', 'low-L', 'low-R']
+
+  for i in range(4):
+    c = random.choice(corners)
+    if isOpenSpace(c):
+      board[c] = 'X'
+      return True #Placed a corner
+    else:
+      corners.remove(c) #So we don't try it again
+
+  return False
+
 #Computer will randomly pic a cell
 def placeRandomly():
   #Loop until an open space is randomly chose
@@ -182,31 +201,77 @@ def placeRandomly():
   board[randLocation] = 'X'
 
 #Computer's turn...........
-#The computer will attempt to take the middle if it is available. It
-#will then attempt to place a winning move. Being unable to win, it
-#will try to block the user from winning. If unable to win, or keep the
-#user from winning, it will then default to picking a random location.
-#A message will appear regarding the selection. The board will be redrawn.
-#Returns true if the computer was able to beat the user, otherwise false.
+#Computer will try the following, in order, (1) take the center,
+#(2) try to play a winning move, (3) try to block the user,
+#(4) take an available corner, (5) place a random X.
 def computerTurn():
   if isOpenSpace('mid-M'):
     board['mid-M'] = 'X'
     print("You didn't take the center? Okay...")
     drawBoard()
-    return False
+    return False 
   if tryToWin():
     print("I win, you lose. Game over.")
     drawBoard()
-    return True
+    return True #Signals game over
   elif tryToBlock():
     print("I see what you did there...")
     drawBoard()    
     return False
-  else:
-    placeRandomly()
-    print("Eh, this looks good.")
+  elif takeCorner():
+    print("Eh, this corner looks good.")
     drawBoard()
     return False
+  else:
+    print("Oh, what the hell..")
+    placeRandomly()
+    drawBoard()
+    return False
+
+#Checks if the user has won
+#Returns True if user has three in a row
+def hasWon():
+  oCount = 0
+  for r in rows:
+    for s in r:
+      if board.get(s) == 'O':
+        oCount += 1
+      else:
+        oCount = 0
+        break
+    #end: for s in r
+
+    if oCount == 3:
+      return True #Signals game over
+  #end: for r in rows
+
+  for c in cols:
+    for s in c:
+      if board.get(s) == 'O':
+        oCount += 1
+      else:
+        oCount = 0
+        break
+    #end: for s in c
+
+  if oCount == 3:
+    return True #Signals game over
+  #end: for c in cols
+
+  for d in diags:
+    for s in d:
+      if board.get(s) == 'O':
+        oCount += 1
+      else:
+        oCount = 0
+        break
+    #end: for s in d
+
+    if oCount == 3:
+      return True #Signals game over
+  #end: for d in diags
+    
+  return False
 
 #User's turn............
 #The user will be prompted to enter a row and column to place a mark.
@@ -234,8 +299,11 @@ def userTurn():
 #as a draw or win/lose. If either userTurn() or computerTurn()
 #return True, that signals they have won the game, and the loop
 #will break.
-print("Starting the game.\n I'm playing 'X', you go first.")
-for i in range(4):
-  userTurn()
-  if computerTurn() == True:
-    break
+def game():
+  print("Starting the game.\n I'm playing 'X', you go first.")
+  for i in range(4):
+    if userTurn():
+      break
+    if computerTurn():
+      break
+  resetBoard()
